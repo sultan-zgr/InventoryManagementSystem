@@ -2,36 +2,40 @@
 using InventoryManagementSystem.Application.DTOs.Product;
 using InventoryManagementSystem.Application.Interfaces;
 using InventoryManagementSystem.Domain.Entities;
-using InventoryManagementSystem.Infrastructure.Repositories;
+using InventoryManagementSystem.Infrastructure.Repositories.Interfaces;
 
 namespace InventoryManagementSystem.Application.Services
 {
     public class ProductService
     {
-        private readonly ProductRepository _productRepository;
+        private readonly IProductRepository _productRepository;
         private readonly ICacheService _cacheService;
         private readonly IMapper _mapper;
         private const string ProductCacheKey = "products";
 
-        public ProductService(ProductRepository productRepository, ICacheService cacheService, IMapper mapper)
+        public ProductService(IProductRepository productRepository, ICacheService cacheService, IMapper mapper)
         {
             _productRepository = productRepository;
             _cacheService = cacheService;
             _mapper = mapper;
         }
-
         public async Task<IEnumerable<ProductDTO>> GetAllProductsAsync()
         {
             // Redis'ten ürünleri getir
             var productsFromCache = await _cacheService.GetAsync<IEnumerable<ProductDTO>>(ProductCacheKey);
-            if (productsFromCache != null)
+            if (productsFromCache != null && productsFromCache.Any())
                 return productsFromCache;
 
-            // Redis'te yoksa MongoDB'den al ve cache'e ekle
+            // Redis'te yoksa veya boş ise veritabanından al ve cache'e ekle
             var products = await _productRepository.GetAllAsync();
-            var productDtos = _mapper.Map<IEnumerable<ProductDTO>>(products);
 
+            // Boş liste kontrolü ekle
+            if (products == null || !products.Any())
+                return new List<ProductDTO>();
+
+            var productDtos = _mapper.Map<IEnumerable<ProductDTO>>(products);
             await _cacheService.SetAsync(ProductCacheKey, productDtos, TimeSpan.FromMinutes(10));
+
             return productDtos;
         }
 
@@ -44,7 +48,7 @@ namespace InventoryManagementSystem.Application.Services
             if (productFromCache != null)
                 return productFromCache;
 
-            // Redis'te yoksa MongoDB'den al ve cache'e ekle
+            // Redis'te yoksa veritabanından al ve cache'e ekle
             var product = await _productRepository.GetByIdAsync(id);
             if (product == null)
                 throw new KeyNotFoundException("Product not found.");

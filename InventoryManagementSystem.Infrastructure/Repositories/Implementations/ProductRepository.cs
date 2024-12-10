@@ -1,10 +1,11 @@
 ﻿using InventoryManagementSystem.Domain.Entities;
 using InventoryManagementSystem.Infrastructure.Data;
+using InventoryManagementSystem.Infrastructure.Repositories.Interfaces;
 using MongoDB.Driver;
 
 namespace InventoryManagementSystem.Infrastructure.Repositories
 {
-    public class ProductRepository
+    public class ProductRepository : IProductRepository
     {
         private readonly MongoDbContext _dbContext;
 
