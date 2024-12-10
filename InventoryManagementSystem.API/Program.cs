@@ -9,6 +9,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddSingleton<MongoDbContext>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    return new MongoDbContext(
+        config["MongoDB:ConnectionString"],
+        config["MongoDB:DatabaseName"]);
+});
+
+
 // Swagger/OpenAPI hizmetlerini ekleyin
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

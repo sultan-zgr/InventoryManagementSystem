@@ -11,5 +11,6 @@
 
         // Navigation Property
         public Category Category { get; set; }
+        public string SKU { get; set; } // Stok Takip Kodu
     }
 }
