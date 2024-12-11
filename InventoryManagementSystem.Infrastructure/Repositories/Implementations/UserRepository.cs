@@ -58,5 +58,10 @@ namespace InventoryManagementSystem.Infrastructure.Repositories.Implementations
                 .Take(pageSize) // Sayfada gösterilecek kayıt sayısı
                 .ToListAsync();
         }
+        public async Task<User> GetByEmailConfirmationTokenAsync(string token)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.EmailConfirmationToken == token);
+        }
+
     }
 }

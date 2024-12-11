@@ -37,6 +37,28 @@ namespace InventoryManagementSystem.API.Controllers
             }
         }
 
+        [HttpGet("confirm-email")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConfirmEmail([FromQuery] string token)
+        {
+            try
+            {
+                await _userService.ConfirmEmailAsync(token);
+                _logger.LogInformation("Email verified successfully for token: {Token}", token);
+                return Ok("Email verified successfully.");
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Invalid or expired token: {Token}", token);
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while confirming email for token: {Token}", token);
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginUserDTO loginUserDto)

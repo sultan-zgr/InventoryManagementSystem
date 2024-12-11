@@ -11,6 +11,9 @@ namespace InventoryManagementSystem.Application.Interfaces
         Task UpdateUserAsync(Guid id, UpdateUserDTO updateUserDto);
         Task DeleteUserAsync(Guid id);
         Task<string> LoginAsync(LoginUserDTO loginUserDto);
+        Task<string> GenerateEmailConfirmationTokenAsync(Guid userId);
+        Task ConfirmEmailAsync(string token);
+
 
     }
 }

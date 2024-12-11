@@ -6,6 +6,7 @@ using InventoryManagementSystem.Application.DTOs.User;
 using InventoryManagementSystem.Application.Interfaces;
 using InventoryManagementSystem.Domain.Entities;
 using InventoryManagementSystem.Infrastructure.Repositories.Interfaces;
+using InventoryManagementSystem.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -16,12 +17,16 @@ namespace InventoryManagementSystem.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
+        private readonly IEmailSender _emailSender; // E-posta gönderici
+        private readonly ITokenGenerator _tokenGenerator; // Token oluşturucu
 
-        public UserService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration)
+        public UserService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration, IEmailSender emailSender, ITokenGenerator tokenGenerator)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _configuration = configuration;
+            _emailSender = emailSender;
+            _tokenGenerator = tokenGenerator;
         }
 
         public async Task RegisterUserAsync(RegisterUserDTO registerUserDto, string createdByRole)
@@ -92,5 +97,52 @@ namespace InventoryManagementSystem.Application.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+        public async Task<string> GenerateEmailConfirmationTokenAsync(Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+                throw new KeyNotFoundException("User not found.");
+
+            // Token oluştur ve kullanıcıya ata
+            var token = Guid.NewGuid().ToString();
+            user.EmailConfirmationToken = token;
+
+            await _userRepository.UpdateAsync(user);
+            return token;
+        }
+        public async Task RegisterUserAsync(RegisterUserDTO registerUserDto)
+        {
+            var userEntity = _mapper.Map<User>(registerUserDto);
+            userEntity.PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerUserDto.Password);
+            userEntity.EmailConfirmationToken = _tokenGenerator.GenerateToken(); // Token oluştur
+            userEntity.TokenCreatedAt = DateTime.UtcNow;
+
+            await _userRepository.AddAsync(userEntity);
+
+            var verificationLink = $"https://yourapp.com/api/user/confirm-email?token={userEntity.EmailConfirmationToken}";
+            await _emailSender.SendEmailAsync(
+                userEntity.Email,
+                "Confirm Your Email",
+                $"Please click <a href=\"{verificationLink}\">here</a> to verify your email. This link is valid for 24 hours."
+            );
+        }
+
+        public async Task ConfirmEmailAsync(string token)
+        {
+            var user = await _userRepository.GetByEmailConfirmationTokenAsync(token);
+            if (user == null || user.IsEmailConfirmed)
+                throw new InvalidOperationException("Invalid or expired token.");
+
+            // Token geçerlilik süresi kontrolü
+            if (DateTime.UtcNow > user.TokenCreatedAt?.AddHours(24))
+                throw new InvalidOperationException("Token has expired.");
+
+            user.IsEmailConfirmed = true;
+            user.EmailConfirmationToken = null;
+            user.TokenCreatedAt = null;
+
+            await _userRepository.UpdateAsync(user);
+        }
+
     }
 }

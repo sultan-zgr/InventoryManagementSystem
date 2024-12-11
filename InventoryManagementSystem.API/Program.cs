@@ -2,6 +2,7 @@ using AspNetCoreRateLimit;
 using FluentValidation.AspNetCore;
 using InventoryManagementSystem.Application.Validators;
 using InventoryManagementSystem.Infrastructure.Data;
+using InventoryManagementSystem.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -67,6 +68,9 @@ builder.Services.AddAuthentication("Bearer")
     });
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddSingleton<IEmailSender, EmailSender>();
+builder.Services.AddSingleton<ITokenGenerator, TokenGenerator>();
 
 // Controller ve Swagger
 builder.Services.AddControllers(); // Controller servisi eklendi

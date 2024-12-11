@@ -7,6 +7,7 @@
         public string Email { get; set; }
         public string Password { get; set; }
         public string Role { get; set; } // Eklenmesi gereken alan
+        public string EmailConfirmationToken { get; set; } // Yeni özellik
     }
 
 

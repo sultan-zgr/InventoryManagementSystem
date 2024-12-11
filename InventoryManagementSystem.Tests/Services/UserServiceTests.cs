@@ -8,6 +8,7 @@ using InventoryManagementSystem.Application.Validators;
 using InventoryManagementSystem.Domain.Entities;
 using InventoryManagementSystem.Domain.Enums;
 using InventoryManagementSystem.Infrastructure.Repositories.Interfaces;
+using InventoryManagementSystem.Infrastructure.Services;
 using Moq;
 using Xunit;
 
@@ -17,13 +18,24 @@ namespace InventoryManagementSystem.Tests.Services
     {
         private readonly Mock<IUserRepository> _userRepositoryMock;
         private readonly Mock<IMapper> _mapperMock;
+        private readonly Mock<IEmailSender> _emailSenderMock;
+        private readonly Mock<ITokenGenerator> _tokenGeneratorMock;
         private readonly UserService _userService;
 
         public UserServiceTests()
         {
             _userRepositoryMock = new Mock<IUserRepository>();
             _mapperMock = new Mock<IMapper>();
-            _userService = new UserService(_userRepositoryMock.Object, _mapperMock.Object, null);
+            _emailSenderMock = new Mock<IEmailSender>();
+            _tokenGeneratorMock = new Mock<ITokenGenerator>();
+
+            // _userService nesnesini doğru yapılandırıyoruz
+            _userService = new UserService(
+                _userRepositoryMock.Object,
+                _mapperMock.Object,
+                Mock.Of<Microsoft.Extensions.Configuration.IConfiguration>(),
+                _emailSenderMock.Object,
+                _tokenGeneratorMock.Object);
         }
 
         [Fact]
