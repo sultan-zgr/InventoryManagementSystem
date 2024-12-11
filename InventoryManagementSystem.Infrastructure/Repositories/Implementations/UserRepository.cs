@@ -50,5 +50,13 @@ namespace InventoryManagementSystem.Infrastructure.Repositories.Implementations
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<IEnumerable<User>> GetAllPagedAsync(int page, int pageSize)
+        {
+            // Sayfalama mantığı
+            return await _context.Users
+                .Skip((page - 1) * pageSize) // Atlanacak kayıt sayısı
+                .Take(pageSize) // Sayfada gösterilecek kayıt sayısı
+                .ToListAsync();
+        }
     }
 }

@@ -46,9 +46,10 @@ namespace InventoryManagementSystem.Application.Services
             return _mapper.Map<UserDetailsDTO>(user);
         }
 
-        public async Task<IEnumerable<UserDetailsDTO>> GetAllUsersAsync()
+        public async Task<IEnumerable<UserDetailsDTO>> GetAllUsersAsync(int page = 1, int pageSize = 10)
         {
-            var users = await _userRepository.GetAllAsync();
+            // Sayfalama mantığı
+            var users = await _userRepository.GetAllPagedAsync(page, pageSize);
             return _mapper.Map<IEnumerable<UserDetailsDTO>>(users);
         }
 
@@ -61,11 +62,11 @@ namespace InventoryManagementSystem.Application.Services
             _mapper.Map(updateUserDto, user);
             await _userRepository.UpdateAsync(user);
         }
-
         public async Task DeleteUserAsync(Guid id)
         {
-            await _userRepository.DeleteAsync(id);
+            await _userRepository.DeleteAsync(id); // Direkt id üzerinden silme işlemi
         }
+
 
         public async Task<string> LoginAsync(LoginUserDTO loginUserDto)
         {

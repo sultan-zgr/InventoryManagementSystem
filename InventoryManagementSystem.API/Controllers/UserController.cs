@@ -2,6 +2,7 @@
 using InventoryManagementSystem.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace InventoryManagementSystem.API.Controllers
 {
@@ -20,7 +21,9 @@ namespace InventoryManagementSystem.API.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Register([FromBody] RegisterUserDTO registerUserDto)
         {
-            var role = User.FindFirst("role")?.Value;
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            // Kullanıcıyı kaydet
             await _userService.RegisterUserAsync(registerUserDto, role);
             return Ok("User registered successfully.");
         }
@@ -30,6 +33,10 @@ namespace InventoryManagementSystem.API.Controllers
         public async Task<IActionResult> Login([FromBody] LoginUserDTO loginUserDto)
         {
             var token = await _userService.LoginAsync(loginUserDto);
+
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized("Invalid credentials."); // Başarısız girişte Unauthorized dön
+
             return Ok(new { Token = token });
         }
 
@@ -38,14 +45,17 @@ namespace InventoryManagementSystem.API.Controllers
         public async Task<IActionResult> GetUserById(Guid id)
         {
             var user = await _userService.GetUserByIdAsync(id);
+            if (user == null)
+                return NotFound("User not found."); // Kullanıcı bulunamazsa 404
+
             return Ok(user);
         }
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var users = await _userService.GetAllUsersAsync();
+            var users = await _userService.GetAllUsersAsync(page, pageSize); // Sayfalama eklenebilir
             return Ok(users);
         }
 
@@ -53,6 +63,10 @@ namespace InventoryManagementSystem.API.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserDTO updateUserDto)
         {
+            var user = await _userService.GetUserByIdAsync(id);
+            if (user == null)
+                return NotFound("User not found."); // Kullanıcı bulunamazsa 404
+
             await _userService.UpdateUserAsync(id, updateUserDto);
             return Ok("User updated successfully.");
         }
@@ -61,6 +75,10 @@ namespace InventoryManagementSystem.API.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
+            var user = await _userService.GetUserByIdAsync(id);
+            if (user == null)
+                return NotFound("User not found."); // Kullanıcı bulunamazsa 404
+
             await _userService.DeleteUserAsync(id);
             return Ok("User deleted successfully.");
         }

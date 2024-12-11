@@ -94,5 +94,6 @@ namespace InventoryManagementSystem.Tests.Services
                 .Which.ErrorMessage.Should().Be("Invalid email format.");
         }
 
+
     }
 }

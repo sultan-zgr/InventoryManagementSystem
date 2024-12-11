@@ -10,6 +10,8 @@ namespace InventoryManagementSystem.Infrastructure.Repositories.Interfaces
         Task UpdateAsync(User user);
         Task DeleteAsync(Guid id);
         Task<User> GetByEmailAsync(string email);
+        Task<IEnumerable<User>> GetAllPagedAsync(int page, int pageSize);
+
 
     }
 }
