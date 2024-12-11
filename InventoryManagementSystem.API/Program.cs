@@ -3,6 +3,7 @@ using InventoryManagementSystem.Application.Validators;
 using InventoryManagementSystem.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using StackExchange.Redis;
 using System.Text;
 
@@ -33,6 +34,14 @@ builder.Services.AddControllers()
         config.RegisterValidatorsFromAssemblyContaining<CreateProductDTOValidator>();
     });
 
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console() // Konsola log yaz
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day) // Günlük dosya logu
+    .MinimumLevel.Debug() // Log seviyesi (Debug ve üstü)
+    .CreateLogger();
+
+// Serilog'u Logging için ayarla
+builder.Host.UseSerilog();
 
 // Authentication ve Authorization
 builder.Services.AddAuthentication("Bearer")

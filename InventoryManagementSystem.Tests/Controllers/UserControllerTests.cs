@@ -3,6 +3,7 @@ using InventoryManagementSystem.Application.DTOs.User;
 using InventoryManagementSystem.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -15,12 +16,14 @@ namespace InventoryManagementSystem.Tests.Controllers
     public class UserControllerTests
     {
         private readonly Mock<IUserService> _mockUserService;
+        private readonly Mock<ILogger<UserController>> _mockLogger;
         private readonly UserController _controller;
 
         public UserControllerTests()
         {
             _mockUserService = new Mock<IUserService>();
-            _controller = new UserController(_mockUserService.Object);
+            _mockLogger = new Mock<ILogger<UserController>>();
+            _controller = new UserController(_mockUserService.Object, _mockLogger.Object);
         }
 
         [Fact]
@@ -122,7 +125,5 @@ namespace InventoryManagementSystem.Tests.Controllers
             Assert.Equal(userDetails.LastName, response.LastName);
             Assert.Equal(userDetails.Role, response.Role);
         }
-
-
     }
 }

@@ -11,10 +11,12 @@ namespace InventoryManagementSystem.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly ILogger<UserController> _logger;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, ILogger<UserController> logger)
         {
             _userService = userService;
+            _logger = logger;
         }
 
         [HttpPost("register")]
@@ -22,65 +24,129 @@ namespace InventoryManagementSystem.API.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterUserDTO registerUserDto)
         {
             var role = User.FindFirst(ClaimTypes.Role)?.Value;
-
-            // Kullanıcıyı kaydet
-            await _userService.RegisterUserAsync(registerUserDto, role);
-            return Ok("User registered successfully.");
+            try
+            {
+                await _userService.RegisterUserAsync(registerUserDto, role);
+                _logger.LogInformation("User registered successfully: {Email}", registerUserDto.Email);
+                return Ok("User registered successfully.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while registering user: {Email}", registerUserDto.Email);
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginUserDTO loginUserDto)
         {
-            var token = await _userService.LoginAsync(loginUserDto);
+            try
+            {
+                var token = await _userService.LoginAsync(loginUserDto);
 
-            if (string.IsNullOrEmpty(token))
-                return Unauthorized("Invalid credentials."); // Başarısız girişte Unauthorized dön
+                if (string.IsNullOrEmpty(token))
+                {
+                    _logger.LogWarning("Login failed for user: {Email}", loginUserDto.Email);
+                    return Unauthorized("Invalid credentials.");
+                }
 
-            return Ok(new { Token = token });
+                _logger.LogInformation("User logged in successfully: {Email}", loginUserDto.Email);
+                return Ok(new { Token = token });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while logging in user: {Email}", loginUserDto.Email);
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUserById(Guid id)
         {
-            var user = await _userService.GetUserByIdAsync(id);
-            if (user == null)
-                return NotFound("User not found."); // Kullanıcı bulunamazsa 404
+            try
+            {
+                var user = await _userService.GetUserByIdAsync(id);
+                if (user == null)
+                {
+                    _logger.LogWarning("User not found: {UserId}", id);
+                    return NotFound("User not found.");
+                }
 
-            return Ok(user);
+                _logger.LogInformation("User retrieved successfully: {UserId}", id);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while retrieving user with ID {UserId}.", id);
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var users = await _userService.GetAllUsersAsync(page, pageSize); // Sayfalama eklenebilir
-            return Ok(users);
+            try
+            {
+                var users = await _userService.GetAllUsersAsync(page, pageSize);
+                _logger.LogInformation("All users retrieved successfully.");
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while retrieving all users.");
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserDTO updateUserDto)
         {
-            var user = await _userService.GetUserByIdAsync(id);
-            if (user == null)
-                return NotFound("User not found."); // Kullanıcı bulunamazsa 404
+            try
+            {
+                var user = await _userService.GetUserByIdAsync(id);
+                if (user == null)
+                {
+                    _logger.LogWarning("User not found: {UserId}", id);
+                    return NotFound("User not found.");
+                }
 
-            await _userService.UpdateUserAsync(id, updateUserDto);
-            return Ok("User updated successfully.");
+                await _userService.UpdateUserAsync(id, updateUserDto);
+                _logger.LogInformation("User updated successfully: {UserId}", id);
+                return Ok("User updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while updating user with ID {UserId}.", id);
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
-            var user = await _userService.GetUserByIdAsync(id);
-            if (user == null)
-                return NotFound("User not found."); // Kullanıcı bulunamazsa 404
+            try
+            {
+                var user = await _userService.GetUserByIdAsync(id);
+                if (user == null)
+                {
+                    _logger.LogWarning("User not found: {UserId}", id);
+                    return NotFound("User not found.");
+                }
 
-            await _userService.DeleteUserAsync(id);
-            return Ok("User deleted successfully.");
+                await _userService.DeleteUserAsync(id);
+                _logger.LogInformation("User deleted successfully: {UserId}", id);
+                return Ok("User deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while deleting user with ID {UserId}.", id);
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
     }
 }
