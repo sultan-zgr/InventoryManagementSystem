@@ -1,8 +1,8 @@
-# Envanter Yönetim Sistemi API'si
+# Envanter Yönetim Sistemi
 
 ## 🚀 Proje Özeti
 
-Bu proje, kapsamlı bir envanter yönetimi için geliştirilmiş bir API çözümüdür. Sistemin temel amacı, kullanıcıların güvenli bir şekilde ürünlerini yönetmelerini, hesap işlemlerini gerçekleştirmelerini ve sistemdeki verileri etkin şekilde işlemelerini sağlamaktır.
+Bu proje, envanter yönetimi için geliştirilmiş bir API'dir. Kullanıcı kaydı, e-posta doğrulama, rol yönetimi, brute force saldırılarına karşı hız sınırlandırma, ve daha fazlasını içeren işlevler sunar. Proje, kullanıcıların ürünleri yönetebilmesini, kendi hesaplarını yönetebilmesini ve sistemdeki verileri güvenli bir şekilde işlemesini sağlar.
 
 ## 🛠 Kullanılan Teknolojiler
 
