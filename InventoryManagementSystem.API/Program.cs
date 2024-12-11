@@ -1,3 +1,5 @@
+using FluentValidation.AspNetCore;
+using InventoryManagementSystem.Application.Validators;
 using InventoryManagementSystem.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -23,6 +25,14 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     var configuration = builder.Configuration.GetConnectionString("Redis");
     return ConnectionMultiplexer.Connect(configuration);
 });
+
+builder.Services.AddControllers()
+    .AddFluentValidation(config =>
+    {
+        config.RegisterValidatorsFromAssemblyContaining<LoginUserDTOValidator>();
+        config.RegisterValidatorsFromAssemblyContaining<CreateProductDTOValidator>();
+    });
+
 
 // Authentication ve Authorization
 builder.Services.AddAuthentication("Bearer")

@@ -4,6 +4,7 @@ using AutoMapper;
 using FluentAssertions;
 using InventoryManagementSystem.Application.DTOs.User;
 using InventoryManagementSystem.Application.Services;
+using InventoryManagementSystem.Application.Validators;
 using InventoryManagementSystem.Domain.Entities;
 using InventoryManagementSystem.Domain.Enums;
 using InventoryManagementSystem.Infrastructure.Repositories.Interfaces;
@@ -83,5 +84,15 @@ namespace InventoryManagementSystem.Tests.Services
             await act.Should().ThrowAsync<UnauthorizedAccessException>()
                 .WithMessage("Only Admins can assign roles other than Viewer.");
         }
+        [Fact]
+        public void Should_Return_Error_When_Email_Is_Invalid()
+        {
+            var validator = new LoginUserDTOValidator();
+            var result = validator.Validate(new LoginUserDTO { Email = "invalidemail", Password = "Password1!" });
+
+            result.Errors.Should().ContainSingle()
+                .Which.ErrorMessage.Should().Be("Invalid email format.");
+        }
+
     }
 }

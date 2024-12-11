@@ -6,6 +6,7 @@ using FluentAssertions;
 using InventoryManagementSystem.Application.DTOs.Product;
 using InventoryManagementSystem.Application.Interfaces;
 using InventoryManagementSystem.Application.Services;
+using InventoryManagementSystem.Application.Validators;
 using InventoryManagementSystem.Domain.Entities;
 using InventoryManagementSystem.Infrastructure.Repositories.Interfaces;
 using Moq;
@@ -158,5 +159,15 @@ namespace InventoryManagementSystem.Tests.Services
             _productRepositoryMock.Verify(repo => repo.GetByIdAsync(productId), Times.Once);
             _cacheServiceMock.Verify(c => c.SetAsync($"products:{productId}", productDto, It.IsAny<TimeSpan>()), Times.Once);
         }
+        [Fact]
+        public void Should_Return_Error_When_ProductName_Is_Empty()
+        {
+            var validator = new CreateProductDTOValidator();
+            var result = validator.Validate(new CreateProductDTO { Name = "", Price = 10, Stock = 5 });
+
+            result.Errors.Should().ContainSingle()
+                .Which.ErrorMessage.Should().Be("Product name is required.");
+        }
+
     }
 }
