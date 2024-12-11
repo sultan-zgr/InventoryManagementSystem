@@ -13,5 +13,14 @@ namespace InventoryManagementSystem.Domain.Entities
         public bool IsEmailConfirmed { get; set; } = false; // Varsayılan olarak doğrulanmamış
         public string EmailConfirmationToken { get; set; } // Doğrulama tokeni
         public DateTime? TokenCreatedAt { get; set; } // Token oluşturulma tarihi
+
+        public void UpdateRole(string newRole)
+        {
+            if (!Enum.TryParse<UserRole>(newRole, true, out var parsedRole))
+                throw new ArgumentException("Invalid role specified.");
+
+            Role = parsedRole;
+        }
     }
+
 }

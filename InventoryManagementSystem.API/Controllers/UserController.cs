@@ -170,5 +170,30 @@ namespace InventoryManagementSystem.API.Controllers
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
+
+        [HttpPut("{email}/role")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateUserRole(string email, [FromBody] UpdateUserRoleDTO updateUserRoleDto)
+        {
+            try
+            {
+                var adminRole = User.FindFirst("role")?.Value;
+                updateUserRoleDto.Email = email;
+                await _userService.UpdateUserRoleAsync(updateUserRoleDto, adminRole);
+                return Ok("User role updated successfully.");
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound("User not found.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

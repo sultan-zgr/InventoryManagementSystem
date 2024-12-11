@@ -13,7 +13,6 @@ namespace InventoryManagementSystem.Application.Interfaces
         Task<string> LoginAsync(LoginUserDTO loginUserDto);
         Task<string> GenerateEmailConfirmationTokenAsync(Guid userId);
         Task ConfirmEmailAsync(string token);
-
-
+        Task UpdateUserRoleAsync(UpdateUserRoleDTO updateUserRoleDto, string adminRole);
     }
 }

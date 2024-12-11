@@ -106,6 +106,20 @@ namespace InventoryManagementSystem.Tests.Services
                 .Which.ErrorMessage.Should().Be("Invalid email format.");
         }
 
+        [Fact]
+        public async Task UpdateUserRoleAsync_Should_Update_Role_When_Valid()
+        {
+            var user = new User { Email = "test@example.com", Role = UserRole.Viewer };
+            _userRepositoryMock.Setup(r => r.GetByEmailAsync(user.Email)).ReturnsAsync(user);
+            _userRepositoryMock.Setup(r => r.UpdateAsync(user)).Returns(Task.CompletedTask);
+
+            var dto = new UpdateUserRoleDTO { Email = user.Email, NewRole = "Admin" };
+
+            await _userService.UpdateUserRoleAsync(dto, UserRole.Admin.ToString());
+
+            _userRepositoryMock.Verify(r => r.UpdateAsync(It.Is<User>(u => u.Role == UserRole.Admin)), Times.Once);
+        }
+
 
     }
 }

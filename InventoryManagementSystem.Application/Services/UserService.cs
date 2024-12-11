@@ -5,6 +5,7 @@ using AutoMapper;
 using InventoryManagementSystem.Application.DTOs.User;
 using InventoryManagementSystem.Application.Interfaces;
 using InventoryManagementSystem.Domain.Entities;
+using InventoryManagementSystem.Domain.Enums;
 using InventoryManagementSystem.Infrastructure.Repositories.Interfaces;
 using InventoryManagementSystem.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
@@ -143,6 +144,17 @@ namespace InventoryManagementSystem.Application.Services
 
             await _userRepository.UpdateAsync(user);
         }
+        public async Task UpdateUserRoleAsync(UpdateUserRoleDTO updateUserRoleDto, string adminRole)
+        {
+            if (adminRole != UserRole.Admin.ToString())
+                throw new UnauthorizedAccessException("Only Admins can update roles.");
 
+            var user = await _userRepository.GetByEmailAsync(updateUserRoleDto.Email);
+            if (user == null)
+                throw new KeyNotFoundException("User not found.");
+
+            user.UpdateRole(updateUserRoleDto.NewRole); // UpdateRole içinde Enum dönüşümü yapılır
+            await _userRepository.UpdateAsync(user);
+        }
     }
 }
