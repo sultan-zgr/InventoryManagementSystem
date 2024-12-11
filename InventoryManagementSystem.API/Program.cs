@@ -80,6 +80,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.MapControllers(); // Controller'larý route'a baðla
 
