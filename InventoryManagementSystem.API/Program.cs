@@ -1,3 +1,4 @@
+using AspNetCoreRateLimit;
 using FluentValidation.AspNetCore;
 using InventoryManagementSystem.Application.Validators;
 using InventoryManagementSystem.Infrastructure.Data;
@@ -26,6 +27,13 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     var configuration = builder.Configuration.GetConnectionString("Redis");
     return ConnectionMultiplexer.Connect(configuration);
 });
+
+// Add Rate Limiting Dependencies
+builder.Services.AddMemoryCache();
+builder.Services.AddInMemoryRateLimiting();
+builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
 
 builder.Services.AddControllers()
     .AddFluentValidation(config =>
@@ -90,6 +98,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseIpRateLimiting();
 
 app.MapControllers(); // Controller'larý route'a baðla
 

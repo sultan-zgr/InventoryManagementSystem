@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Xunit;
 
 
-namespace InventoryManagementSystem.Tests
+namespace InventoryManagementSystem.Tests.MiddlewareTests
 {
     public class ExceptionMiddlewareTests
     {
@@ -102,5 +102,6 @@ namespace InventoryManagementSystem.Tests
             public string Message { get; set; }
         }
     }
+
 
 }
