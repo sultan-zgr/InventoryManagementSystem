@@ -56,7 +56,7 @@ namespace InventoryManagementSystem.Tests.Services
         [Fact]
         public async Task GetAllProductsAsync_Should_Fetch_From_Database_When_Cache_Is_Empty()
         {
-            // Arrange: Redis'ten boş veri döndürme
+            // Arrange
             _cacheServiceMock
                 .Setup(c => c.GetAsync<IEnumerable<ProductDTO>>("products"))
                 .ReturnsAsync((IEnumerable<ProductDTO>)null);
@@ -72,7 +72,6 @@ namespace InventoryManagementSystem.Tests.Services
                         new ProductDTO { Id = products[0].Id, Name = "Product 1", Price = 100, Stock = 10 }
                     };
 
-            // Repository ve Mapper Setup
             _productRepositoryMock
                 .Setup(repo => repo.GetAllAsync())
                 .ReturnsAsync(products);
@@ -81,7 +80,6 @@ namespace InventoryManagementSystem.Tests.Services
                 .Setup(m => m.Map<IEnumerable<ProductDTO>>(products))
                 .Returns(productDtos);
 
-            // Cache'e kaydetme setup
             _cacheServiceMock
                 .Setup(c => c.SetAsync(
                     It.IsAny<string>(),
@@ -95,7 +93,6 @@ namespace InventoryManagementSystem.Tests.Services
             // Assert
             result.Should().BeEquivalentTo(productDtos);
 
-            // Doğrulama kontrolleri
             _cacheServiceMock.Verify(
                 c => c.GetAsync<IEnumerable<ProductDTO>>("products"),
                 Times.Once

@@ -54,8 +54,8 @@ namespace InventoryManagementSystem.Infrastructure.Repositories.Implementations
         {
             // Sayfalama mantığı
             return await _context.Users
-                .Skip((page - 1) * pageSize) // Atlanacak kayıt sayısı
-                .Take(pageSize) // Sayfada gösterilecek kayıt sayısı
+                .Skip((page - 1) * pageSize) 
+                .Take(pageSize) 
                 .ToListAsync();
         }
         public async Task<User> GetByEmailConfirmationTokenAsync(string token)

@@ -11,8 +11,7 @@ namespace InventoryManagementSystem.Infrastructure.Services
     {
         public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
-            // SMTP veya üçüncü taraf hizmetler (örneğin SendGrid) ile e-posta gönderimi
-            await Task.CompletedTask; // Gerçek e-posta gönderimi burada yapılacak
+            await Task.CompletedTask; //TODO: E-Posta gönderimi burada yapılacak
         }
     }
 }

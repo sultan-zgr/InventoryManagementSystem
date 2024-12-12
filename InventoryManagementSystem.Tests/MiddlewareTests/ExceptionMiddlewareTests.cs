@@ -14,7 +14,7 @@ namespace InventoryManagementSystem.Tests.MiddlewareTests
         [Fact]
         public async Task Middleware_Should_Return_404_For_KeyNotFoundException()
         {
-            // Arrange: KeyNotFoundException fırlatacak bir middleware simüle ediliyor.
+            // Arrange
             var middleware = new ExceptionMiddleware(async (innerHttpContext) =>
             {
                 throw new KeyNotFoundException("Resource not found.");
@@ -42,7 +42,7 @@ namespace InventoryManagementSystem.Tests.MiddlewareTests
         [Fact]
         public async Task Middleware_Should_Return_400_For_ArgumentException()
         {
-            // Arrange: ArgumentException fırlatacak bir middleware simüle ediliyor.
+            // Arrange
             var middleware = new ExceptionMiddleware(async (innerHttpContext) =>
             {
                 throw new ArgumentException("Invalid argument.");
@@ -70,7 +70,7 @@ namespace InventoryManagementSystem.Tests.MiddlewareTests
         [Fact]
         public async Task Middleware_Should_Return_500_For_UnexpectedException()
         {
-            // Arrange: Beklenmeyen bir hata fırlatılacak.
+            // Arrange
             var middleware = new ExceptionMiddleware(async (innerHttpContext) =>
             {
                 throw new Exception("Unexpected error.");
@@ -94,8 +94,6 @@ namespace InventoryManagementSystem.Tests.MiddlewareTests
             response.StatusCode.Should().Be((int)HttpStatusCode.InternalServerError);
             response.Message.Should().Be("An unexpected error occurred. Please try again later.");
         }
-
-        // Yardımcı sınıf: Hata yanıtlarını deserialize etmek için
         private class ErrorResponse
         {
             public int StatusCode { get; set; }

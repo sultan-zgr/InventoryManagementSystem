@@ -29,7 +29,6 @@ namespace InventoryManagementSystem.Tests.Services
             _emailSenderMock = new Mock<IEmailSender>();
             _tokenGeneratorMock = new Mock<ITokenGenerator>();
 
-            // _userService nesnesini doğru yapılandırıyoruz
             _userService = new UserService(
                 _userRepositoryMock.Object,
                 _mapperMock.Object,
@@ -86,7 +85,7 @@ namespace InventoryManagementSystem.Tests.Services
                 LastName = "Smith",
                 Email = "jane.smith@example.com",
                 Password = "Password123",
-                Role = "Admin" // Non-Viewer Role
+                Role = "Admin" 
             };
 
             // Act

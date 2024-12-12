@@ -6,8 +6,8 @@
         public string LastName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public string Role { get; set; } // Eklenmesi gereken alan
-        public string EmailConfirmationToken { get; set; } // Yeni özellik
+        public string Role { get; set; } 
+        public string EmailConfirmationToken { get; set; } 
     }
 
 
@@ -23,7 +23,7 @@
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
-        public string Role { get; set; } // Admin, Manager, Viewer
+        public string Role { get; set; } 
     }
 
     public class UpdateUserDTO

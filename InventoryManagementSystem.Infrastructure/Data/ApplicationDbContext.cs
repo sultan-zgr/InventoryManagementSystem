@@ -9,7 +9,6 @@ namespace InventoryManagementSystem.Infrastructure.Data
         {
         }
 
-        // DbSet Tanımları
         public DbSet<User> Users { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
@@ -18,13 +17,10 @@ namespace InventoryManagementSystem.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Fluent API ile ilişkileri tanımlama
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)
                 .WithMany(c => c.Products)
                 .HasForeignKey(p => p.CategoryId);
-
-            // Diğer konfigürasyonlar
         }
     }
 }
