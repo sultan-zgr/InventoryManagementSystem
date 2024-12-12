@@ -9,7 +9,6 @@ namespace InventoryManagementSystem.Infrastructure.Data
         {
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
 
-            // Bağlantı dizesini buraya ekleyin (veya çevresel değişkenlerden okuyabilirsiniz)
             optionsBuilder.UseNpgsql("Host=localhost;Database=InventoryDB;Username=postgres;Password=password");
 
             return new ApplicationDbContext(optionsBuilder.Options);

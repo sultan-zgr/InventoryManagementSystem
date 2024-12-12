@@ -78,7 +78,6 @@ namespace InventoryManagementSystem.Tests.Controllers
             var okResult = Assert.IsType<OkObjectResult>(result);
             Assert.NotNull(okResult.Value);
 
-            // Anonim türden Token'i kontrol et
             var response = okResult.Value;
             var tokenProperty = response.GetType().GetProperty("Token");
             Assert.NotNull(tokenProperty);

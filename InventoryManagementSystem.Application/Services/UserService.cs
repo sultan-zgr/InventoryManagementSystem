@@ -18,8 +18,8 @@ namespace InventoryManagementSystem.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
-        private readonly IEmailSender _emailSender; // E-posta gönderici
-        private readonly ITokenGenerator _tokenGenerator; // Token oluşturucu
+        private readonly IEmailSender _emailSender; 
+        private readonly ITokenGenerator _tokenGenerator; 
 
         public UserService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration, IEmailSender emailSender, ITokenGenerator tokenGenerator)
         {
@@ -32,15 +32,12 @@ namespace InventoryManagementSystem.Application.Services
 
         public async Task RegisterUserAsync(RegisterUserDTO registerUserDto, string createdByRole)
         {
-            // Sadece Admin kullanıcılar Viewer dışında bir rol atayabilir
             if (registerUserDto.Role != "Viewer" && createdByRole != "Admin")
                 throw new UnauthorizedAccessException("Only Admins can assign roles other than Viewer.");
 
-            // Kullanıcıyı Entity'ye mapleyin ve şifreyi hashleyin
             var userEntity = _mapper.Map<User>(registerUserDto);
             userEntity.PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerUserDto.Password);
 
-            // Kullanıcıyı kaydedin
             await _userRepository.AddAsync(userEntity);
         }
 
@@ -54,7 +51,6 @@ namespace InventoryManagementSystem.Application.Services
 
         public async Task<IEnumerable<UserDetailsDTO>> GetAllUsersAsync(int page = 1, int pageSize = 10)
         {
-            // Sayfalama mantığı
             var users = await _userRepository.GetAllPagedAsync(page, pageSize);
             return _mapper.Map<IEnumerable<UserDetailsDTO>>(users);
         }
@@ -64,13 +60,12 @@ namespace InventoryManagementSystem.Application.Services
             var user = await _userRepository.GetByIdAsync(id);
             if (user == null) throw new KeyNotFoundException("User not found.");
 
-            // Mapleme ve güncelleme
             _mapper.Map(updateUserDto, user);
             await _userRepository.UpdateAsync(user);
         }
         public async Task DeleteUserAsync(Guid id)
         {
-            await _userRepository.DeleteAsync(id); // Direkt id üzerinden silme işlemi
+            await _userRepository.DeleteAsync(id); 
         }
 
 
@@ -88,7 +83,7 @@ namespace InventoryManagementSystem.Application.Services
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.Name, user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, user.Role.ToString()) // Enum'u string'e dönüştürdük
+                    new Claim(ClaimTypes.Role, user.Role.ToString()) 
                 }),
 
                 Expires = DateTime.UtcNow.AddHours(2),
@@ -104,7 +99,6 @@ namespace InventoryManagementSystem.Application.Services
             if (user == null)
                 throw new KeyNotFoundException("User not found.");
 
-            // Token oluştur ve kullanıcıya ata
             var token = Guid.NewGuid().ToString();
             user.EmailConfirmationToken = token;
 
@@ -115,7 +109,7 @@ namespace InventoryManagementSystem.Application.Services
         {
             var userEntity = _mapper.Map<User>(registerUserDto);
             userEntity.PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerUserDto.Password);
-            userEntity.EmailConfirmationToken = _tokenGenerator.GenerateToken(); // Token oluştur
+            userEntity.EmailConfirmationToken = _tokenGenerator.GenerateToken(); 
             userEntity.TokenCreatedAt = DateTime.UtcNow;
 
             await _userRepository.AddAsync(userEntity);
@@ -134,7 +128,6 @@ namespace InventoryManagementSystem.Application.Services
             if (user == null || user.IsEmailConfirmed)
                 throw new InvalidOperationException("Invalid or expired token.");
 
-            // Token geçerlilik süresi kontrolü
             if (DateTime.UtcNow > user.TokenCreatedAt?.AddHours(24))
                 throw new InvalidOperationException("Token has expired.");
 
@@ -153,7 +146,7 @@ namespace InventoryManagementSystem.Application.Services
             if (user == null)
                 throw new KeyNotFoundException("User not found.");
 
-            user.UpdateRole(updateUserRoleDto.NewRole); // UpdateRole içinde Enum dönüşümü yapılır
+            user.UpdateRole(updateUserRoleDto.NewRole); 
             await _userRepository.UpdateAsync(user);
         }
     }
